@@ -13,8 +13,8 @@ from scipy.optimize import curve_fit
 def polywarp(xi,yi,xo,yo,degree=1):
     """
     Fit a function of the form
-    xi = sum over i and j from 0 to degree of: kx[i,j] * xo^j * yo^i
-    yi = sum over i and j from 0 to degree of: ky[i,j] * xo^j * yo^i
+    xi_k = sum over i and j from 0 to degree of: kx[i,j] * xo_k^i * yo_k^j
+    yi_k = sum over i and j from 0 to degree of: ky[i,j] * xo_k^i * yo_k^j
     Return kx, ky
     len(xo) must be greater than or equal to (degree+1)^2
     """
@@ -33,25 +33,18 @@ def polywarp(xi,yi,xo,yo,degree=1):
     degree2 = (degree+1)**2
     x = np.array([xi,yi])
     u = np.array([xo,yo])
-    ut = np.zeros([len(xo),degree2])
+    ut = np.zeros([degree2,len(xo)])
     u2i = np.zeros(degree+1)
     for i in range(len(xo)):
         u2i[0] = 1.
         zz = u[1,i]
         for j in range(1,degree+1):
             u2i[j]=u2i[j-1]*zz
-        print "u2i",u2i
-        ut[i,0:degree+1] = u2i
+        ut[0:degree+1,i] = u2i
         for j in range(1,degree+1):
-            ut[i,j*(degree+1):j*(degree+1)+degree+1]=u2i*u[0,i]**j
-        print "ut",ut
+            ut[j*(degree+1):j*(degree+1)+degree+1,i]=u2i*u[0,i]**j
     uu = ut.T
-    print "uu",uu
-    kk = np.dot(np.linalg.inv(np.dot(uu,ut)),uu).T
-    print "kk",kk
-    print "x[0,:]",x[0,:]
-    kx = np.dot(kk.T,x[0,:]).reshape(degree+1,degree+1)
-    print "kx",kx
-    ky = np.dot(kk.T,x[1,:]).reshape(degree+1,degree+1)
-    print "ky",ky
+    kk = np.dot(np.linalg.inv(np.dot(ut,uu).T).T,ut)
+    kx = np.dot(kk,x[0,:].T).reshape(degree+1,degree+1)
+    ky = np.dot(kk,x[1,:].T).reshape(degree+1,degree+1)
     return kx,ky
