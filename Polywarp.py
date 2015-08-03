@@ -13,8 +13,8 @@ from scipy.optimize import curve_fit
 def polywarp(xi,yi,xo,yo,degree=1):
     """
     Fit a function of the form
-    xi_k = sum over i and j from 0 to degree of: kx[i,j] * xo_k^i * yo_k^j
-    yi_k = sum over i and j from 0 to degree of: ky[i,j] * xo_k^i * yo_k^j
+    xi[k] = sum over i and j from 0 to degree of: kx[i,j] * xo[k]^i * yo[k]^j
+    yi[k] = sum over i and j from 0 to degree of: ky[i,j] * xo[k]^i * yo[k]^j
     Return kx, ky
     len(xo) must be greater than or equal to (degree+1)^2
     """
